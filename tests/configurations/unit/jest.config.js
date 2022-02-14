@@ -4,7 +4,7 @@ module.exports = {
   },
   testMatch: ['<rootDir>/tests/unit/**/*.spec.ts'],
   collectCoverage: true,
-  collectCoverageFrom: ['<rootDir>/src/**/*.ts', '!**/node_modules/**', '!**/vendor/**'],
+  collectCoverageFrom: ['<rootDir>/src/**/*.ts', '!**/node_modules/**', '!**/vendor/**', '!<rootDir>/src/**/index.ts'],
   coverageDirectory: '<rootDir>/coverage',
   coverageReporters: ['text-summary', 'html', 'json'],
   rootDir: '../../../.',

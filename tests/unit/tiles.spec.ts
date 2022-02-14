@@ -1,4 +1,4 @@
-import { boundingBoxToTiles, lonLatZoomToTile, tileToBoundingBox, zoomShift } from '../../src';
+import { boundingBoxToTiles, lonLatZoomToTile, tileToBoundingBox, zoomShift } from '../../src/tiles';
 import { TILEGRID_WEB_MERCATOR, TILEGRID_WORLD_CRS84 } from '../../src/constants';
 import { BoundingBox, LonLat, Tile, TileGrid } from '../../src/interfaces';
 import { Zoom } from '../../src/types';
@@ -8,6 +8,17 @@ describe('#boundingBoxToTiles', () => {
     const bbox: BoundingBox = { west: 30, south: 30, east: 40, north: 40 };
     const zoom: Zoom = 3;
     const expected = { value: { x: 9, y: 2, z: 3, metatile: 1 }, done: false };
+    const expectedNext = { value: undefined, done: true };
+
+    const tilesGenerator = boundingBoxToTiles(bbox, zoom);
+
+    expect(tilesGenerator.next()).toEqual(expected);
+    expect(tilesGenerator.next()).toEqual(expectedNext);
+  });
+  it('should return a generator function which yields tiles inside the bounding box with negative coordinates', () => {
+    const bbox: BoundingBox = { west: -40, south: -40, east: -30, north: -30 };
+    const zoom: Zoom = 3;
+    const expected = { value: { x: 6, y: 5, z: 3, metatile: 1 }, done: false };
     const expectedNext = { value: undefined, done: true };
 
     const tilesGenerator = boundingBoxToTiles(bbox, zoom);
@@ -111,6 +122,15 @@ describe('#lonLatZoomToTile', () => {
     const lonLat: LonLat = { lon: 30, lat: 30 };
     const zoom: Zoom = 2;
     const expected: Tile = { x: 4, y: 1, z: 2, metatile: 1 };
+
+    const tile = lonLatZoomToTile(lonLat, zoom);
+
+    expect(tile).toEqual(expected);
+  });
+  it('should return a tile for a given negative longtitude, latitude & zoom', () => {
+    const lonLat: LonLat = { lon: -30, lat: -30 };
+    const zoom: Zoom = 2;
+    const expected: Tile = { x: 3, y: 2, z: 2, metatile: 1 };
 
     const tile = lonLatZoomToTile(lonLat, zoom);
 

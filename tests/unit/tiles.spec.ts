@@ -237,6 +237,14 @@ describe('#tileToBoundingBox', () => {
 
     expect(boundingBox).toEqual(expected);
   });
+  it('should return a bounding box for a given tile which contains a metatile size that overrides the default', () => {
+    const tile: Tile = { x: 1, y: 0, z: 1, metatile: 2 };
+    const expected: BoundingBox = { west: 0, south: -90, east: 180, north: 90 };
+
+    const boundingBox = tileToBoundingBox(tile);
+
+    expect(boundingBox).toEqual(expected);
+  });
   it('should return a bounding box for a given tile with non default metatile', () => {
     const tile: Tile = { x: 1, y: 0, z: 1 };
     const metatile = 2;

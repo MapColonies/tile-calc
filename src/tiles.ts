@@ -102,6 +102,7 @@ export function lonLatZoomToTile(lonlat: LonLat, zoom: Zoom, metatile = 1, refer
 export function tileToBoundingBox(tile: Tile, metatile = 1, referenceTileGrid: TileGrid = TILEGRID_WORLD_CRS84): BoundingBox {
   validateMetatile(metatile);
   validateTileGrid(referenceTileGrid);
+  metatile = tile.metatile ?? metatile;
   validateTile(tile, metatile, referenceTileGrid);
 
   const width = tileWidth(tile.z, referenceTileGrid) * metatile;

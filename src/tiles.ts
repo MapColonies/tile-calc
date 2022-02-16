@@ -14,16 +14,19 @@ function clamp(value: number, minValue: number, maxValue: number): number {
 
   return value;
 }
+
 function tileHeight(zoom: Zoom, referenceTileGrid: TileGrid): number {
   return (
     (referenceTileGrid.boundingBox.north - referenceTileGrid.boundingBox.south) / (referenceTileGrid.numberOfMinLevelTilesY * SCALE_FACTOR ** zoom)
   );
 }
+
 function tileWidth(zoom: Zoom, referenceTileGrid: TileGrid): number {
   return (
     (referenceTileGrid.boundingBox.east - referenceTileGrid.boundingBox.west) / (referenceTileGrid.numberOfMinLevelTilesX * SCALE_FACTOR ** zoom)
   );
 }
+
 function* tilesGenerator(limits: Limits, zoom: Zoom, metatile: number): Generator<Tile, undefined, undefined> {
   for (let y = limits[1]; y <= limits[3]; y++) {
     for (let x = limits[0]; x <= limits[2]; x++) {
@@ -32,6 +35,23 @@ function* tilesGenerator(limits: Limits, zoom: Zoom, metatile: number): Generato
   }
 
   return;
+}
+
+function geoCoordsToTile(lonlat: LonLat, zoom: Zoom, metatile = 1, referenceTileGrid: TileGrid = TILEGRID_WORLD_CRS84): Tile {
+  const width = tileWidth(zoom, referenceTileGrid) * metatile;
+  const height = tileHeight(zoom, referenceTileGrid) * metatile;
+
+  const x = Math.floor((lonlat.lon - referenceTileGrid.boundingBox.west) / width);
+  const y = Math.floor((referenceTileGrid.boundingBox.north - lonlat.lat) / height);
+
+  // clamp the values in cases when lon is 180 which is calculated as beyond
+  // the range of tile index for a given zoom level
+  return {
+    x: clamp(x, 0, Math.ceil((referenceTileGrid.numberOfMinLevelTilesX / metatile) * SCALE_FACTOR ** zoom - 1)),
+    y: clamp(y, 0, Math.ceil((referenceTileGrid.numberOfMinLevelTilesY / metatile) * SCALE_FACTOR ** zoom - 1)),
+    z: zoom,
+    metatile: metatile,
+  };
 }
 
 export function boundingBoxToTiles(
@@ -45,8 +65,8 @@ export function boundingBoxToTiles(
   validateTileGridBoundingBox(bbox, referenceTileGrid);
   validateZoomLevel(zoom, referenceTileGrid);
 
-  const upperLeftTile = lonLatZoomToTile({ lon: bbox.west, lat: bbox.north }, zoom, metatile, referenceTileGrid);
-  const lowerRightTile = lonLatZoomToTile({ lon: bbox.east, lat: bbox.south }, zoom, metatile, referenceTileGrid);
+  const upperLeftTile = geoCoordsToTile({ lon: bbox.west, lat: bbox.north }, zoom, metatile, referenceTileGrid);
+  const lowerRightTile = geoCoordsToTile({ lon: bbox.east, lat: bbox.south }, zoom, metatile, referenceTileGrid);
 
   return tilesGenerator([upperLeftTile.x, upperLeftTile.y, lowerRightTile.x, lowerRightTile.y], zoom, metatile);
 }
@@ -83,20 +103,7 @@ export function lonLatZoomToTile(lonlat: LonLat, zoom: Zoom, metatile = 1, refer
   validateZoomLevel(zoom, referenceTileGrid);
   validateLonlat(lonlat, referenceTileGrid);
 
-  const width = tileWidth(zoom, referenceTileGrid) * metatile;
-  const height = tileHeight(zoom, referenceTileGrid) * metatile;
-
-  const x = Math.floor((lonlat.lon - referenceTileGrid.boundingBox.west) / width);
-  const y = Math.floor((referenceTileGrid.boundingBox.north - lonlat.lat) / height);
-
-  // clamp the values in cases when lon is 180 which is calculated as beyond
-  // the range of tile index for a given zoom level
-  return {
-    x: clamp(x, 0, Math.ceil((referenceTileGrid.numberOfMinLevelTilesX / metatile) * SCALE_FACTOR ** zoom - 1)),
-    y: clamp(y, 0, Math.ceil((referenceTileGrid.numberOfMinLevelTilesY / metatile) * SCALE_FACTOR ** zoom - 1)),
-    z: zoom,
-    metatile: metatile,
-  };
+  return geoCoordsToTile(lonlat, zoom, metatile, referenceTileGrid);
 }
 
 export function tileToBoundingBox(tile: Tile, metatile = 1, referenceTileGrid: TileGrid = TILEGRID_WORLD_CRS84): BoundingBox {

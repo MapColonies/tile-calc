@@ -83,6 +83,46 @@ describe('#boundingBoxToTiles', () => {
 
     expect(badTilesGenerator).toThrow(Error("bounding box's north must be larger than south"));
   });
+  it("should throw an error when the given bounding box's west value is less than tile grid's bounding box west value", () => {
+    const bbox: BoundingBox = { west: -190, south: -30, east: 40, north: 30 };
+    const zoom: Zoom = 3;
+
+    const badTilesGenerator = (): void => {
+      boundingBoxToTiles(bbox, zoom);
+    };
+
+    expect(badTilesGenerator).toThrow(Error("bounding box's west must be larger or equal than the west value of tile grid's bounding box"));
+  });
+  it("should throw an error when the given bounding box's east value is larger than tile grid's bounding box east value", () => {
+    const bbox: BoundingBox = { west: 30, south: -30, east: 190, north: 30 };
+    const zoom: Zoom = 3;
+
+    const badTilesGenerator = (): void => {
+      boundingBoxToTiles(bbox, zoom);
+    };
+
+    expect(badTilesGenerator).toThrow(Error("bounding box's east must be smaller or equal than the east value of tile grid's bounding box"));
+  });
+  it("should throw an error when the given bounding box's south value is less than tile grid's bounding box south value", () => {
+    const bbox: BoundingBox = { west: 30, south: -100, east: 40, north: 30 };
+    const zoom: Zoom = 3;
+
+    const badTilesGenerator = (): void => {
+      boundingBoxToTiles(bbox, zoom);
+    };
+
+    expect(badTilesGenerator).toThrow(Error("bounding box's south must be larger or equal than the south value of tile grid's bounding box"));
+  });
+  it("should throw an error when the given bounding box's north value is larger than tile grid's bounding box north value", () => {
+    const bbox: BoundingBox = { west: 30, south: -30, east: 40, north: 100 };
+    const zoom: Zoom = 3;
+
+    const badTilesGenerator = (): void => {
+      boundingBoxToTiles(bbox, zoom);
+    };
+
+    expect(badTilesGenerator).toThrow(Error("bounding box's north must be smaller or equal than the north value of tile grid's bounding box"));
+  });
 });
 
 describe('#zoomShift', () => {

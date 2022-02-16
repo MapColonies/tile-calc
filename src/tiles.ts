@@ -1,7 +1,7 @@
 import { SCALE_FACTOR, TILEGRID_WORLD_CRS84 } from './constants';
 import { BoundingBox, LonLat, Tile, TileGrid } from './interfaces';
 import { Limits, Zoom } from './types';
-import { validateBoundingBox, validateLonlat, validateMetatile, validateTile, validateTileGrid, validateZoomLevel } from './validations';
+import { validateLonlat, validateMetatile, validateTile, validateTileGrid, validateTileGridBoundingBox, validateZoomLevel } from './validations';
 
 function clamp(value: number, minValue: number, maxValue: number): number {
   if (value < minValue) {
@@ -40,9 +40,9 @@ export function boundingBoxToTiles(
   metatile = 1,
   referenceTileGrid: TileGrid = TILEGRID_WORLD_CRS84
 ): Generator<Tile, undefined, undefined> {
-  validateBoundingBox(bbox);
   validateMetatile(metatile);
   validateTileGrid(referenceTileGrid);
+  validateTileGridBoundingBox(bbox, referenceTileGrid);
   validateZoomLevel(zoom, referenceTileGrid);
 
   const upperLeftTile = lonLatZoomToTile({ lon: bbox.west, lat: bbox.north }, zoom, metatile, referenceTileGrid);

@@ -46,6 +46,26 @@ export function validateBoundingBox(bbox: BoundingBox): void {
   }
 }
 
+export function validateTileGridBoundingBox(bbox: BoundingBox, referenceTileGrid: TileGrid): void {
+  validateBoundingBox(bbox);
+
+  if (bbox.west < referenceTileGrid.boundingBox.west) {
+    throw new RangeError("bounding box's west must be larger or equal than the west value of tile grid's bounding box");
+  }
+
+  if (bbox.east > referenceTileGrid.boundingBox.east) {
+    throw new RangeError("bounding box's east must be smaller or equal than the east value of tile grid's bounding box");
+  }
+
+  if (bbox.south < referenceTileGrid.boundingBox.south) {
+    throw new RangeError("bounding box's south must be larger or equal than the south value of tile grid's bounding box");
+  }
+
+  if (bbox.north > referenceTileGrid.boundingBox.north) {
+    throw new RangeError("bounding box's north must be smaller or equal than the north value of tile grid's bounding box");
+  }
+}
+
 export function validateLonlat(lonlat: LonLat, referenceTileGrid: TileGrid): void {
   if (lonlat.lon < referenceTileGrid.boundingBox.west || lonlat.lon > referenceTileGrid.boundingBox.east) {
     throw new RangeError("longtitude out of range of tile grid's bounding box");

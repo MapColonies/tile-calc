@@ -106,10 +106,10 @@ export function lonLatZoomToTile(lonlat: LonLat, zoom: Zoom, metatile = 1, refer
   return geoCoordsToTile(lonlat, zoom, metatile, referenceTileGrid);
 }
 
-export function tileToBoundingBox(tile: Tile, metatile = 1, referenceTileGrid: TileGrid = TILEGRID_WORLD_CRS84): BoundingBox {
-  validateMetatile(metatile);
+export function tileToBoundingBox(tile: Tile, referenceTileGrid: TileGrid = TILEGRID_WORLD_CRS84): BoundingBox {
   validateTileGrid(referenceTileGrid);
-  validateTile(tile, metatile, referenceTileGrid);
+  validateTile(tile, referenceTileGrid);
+  const metatile = tile.metatile ?? 1;
 
   const width = tileWidth(tile.z, referenceTileGrid) * metatile;
   const height = tileHeight(tile.z, referenceTileGrid) * metatile;

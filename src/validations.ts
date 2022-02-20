@@ -69,14 +69,17 @@ export function validateZoomLevel(zoom: Zoom, referenceTileGrid: TileGrid): void
   }
 }
 
-export function validateTile(tile: Tile, metatile: number, referenceTileGrid: TileGrid): void {
+export function validateTile(tile: Tile, referenceTileGrid: TileGrid): void {
   validateZoomLevel(tile.z, referenceTileGrid);
+  if (tile.metatile !== undefined) {
+    validateMetatile(tile.metatile);
+  }
 
-  if (tile.x < 0 || tile.x >= (referenceTileGrid.numberOfMinLevelTilesX / metatile) * SCALE_FACTOR ** tile.z) {
+  if (tile.x < 0 || tile.x >= (referenceTileGrid.numberOfMinLevelTilesX / (tile.metatile ?? 1)) * SCALE_FACTOR ** tile.z) {
     throw new RangeError('x index out of range of tile grid');
   }
 
-  if (tile.y < 0 || tile.y >= (referenceTileGrid.numberOfMinLevelTilesY / metatile) * SCALE_FACTOR ** tile.z) {
+  if (tile.y < 0 || tile.y >= (referenceTileGrid.numberOfMinLevelTilesY / (tile.metatile ?? 1)) * SCALE_FACTOR ** tile.z) {
     throw new RangeError('y index out of range of tile grid');
   }
 }

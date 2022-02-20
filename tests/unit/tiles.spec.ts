@@ -83,6 +83,46 @@ describe('#boundingBoxToTiles', () => {
 
     expect(badTilesGenerator).toThrow(Error("bounding box's north must be larger than south"));
   });
+  it("should throw an error when the given bounding box's west value is less than tile grid's bounding box west value", () => {
+    const bbox: BoundingBox = { west: -190, south: -30, east: 40, north: 30 };
+    const zoom: Zoom = 3;
+
+    const badTilesGenerator = (): void => {
+      boundingBoxToTiles(bbox, zoom);
+    };
+
+    expect(badTilesGenerator).toThrow(RangeError("longtitude -190 is out of range of tile grid's bounding box"));
+  });
+  it("should throw an error when the given bounding box's east value is larger than tile grid's bounding box east value", () => {
+    const bbox: BoundingBox = { west: 30, south: -30, east: 190, north: 30 };
+    const zoom: Zoom = 3;
+
+    const badTilesGenerator = (): void => {
+      boundingBoxToTiles(bbox, zoom);
+    };
+
+    expect(badTilesGenerator).toThrow(RangeError("longtitude 190 is out of range of tile grid's bounding box"));
+  });
+  it("should throw an error when the given bounding box's south value is less than tile grid's bounding box south value", () => {
+    const bbox: BoundingBox = { west: 30, south: -100, east: 40, north: 30 };
+    const zoom: Zoom = 3;
+
+    const badTilesGenerator = (): void => {
+      boundingBoxToTiles(bbox, zoom);
+    };
+
+    expect(badTilesGenerator).toThrow(RangeError("latitude -100 is out of range of tile grid's bounding box"));
+  });
+  it("should throw an error when the given bounding box's north value is larger than tile grid's bounding box north value", () => {
+    const bbox: BoundingBox = { west: 30, south: -30, east: 40, north: 100 };
+    const zoom: Zoom = 3;
+
+    const badTilesGenerator = (): void => {
+      boundingBoxToTiles(bbox, zoom);
+    };
+
+    expect(badTilesGenerator).toThrow(RangeError("latitude 100 is out of range of tile grid's bounding box"));
+  });
 });
 
 describe('#zoomShift', () => {
@@ -193,7 +233,7 @@ describe('#lonLatZoomToTile', () => {
       lonLatZoomToTile(lonLat, zoom);
     };
 
-    expect(badLonLatZoomToTile).toThrow(RangeError("longtitude out of range of tile grid's bounding box"));
+    expect(badLonLatZoomToTile).toThrow(RangeError("longtitude -190 is out of range of tile grid's bounding box"));
   });
   it("should throw an error when latitude is outside of tile grid's bounding box", () => {
     const lonLat: LonLat = { lon: 30, lat: 100 };
@@ -203,7 +243,7 @@ describe('#lonLatZoomToTile', () => {
       lonLatZoomToTile(lonLat, zoom);
     };
 
-    expect(badLonLatZoomToTile).toThrow(RangeError("latitude out of range of tile grid's bounding box"));
+    expect(badLonLatZoomToTile).toThrow(RangeError("latitude 100 is out of range of tile grid's bounding box"));
   });
   it("should throw an error when the zoom level is not part of zoom levels of tile grid's scale set", () => {
     const lonLat: LonLat = { lon: 30, lat: 30 };

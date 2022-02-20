@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 0.1.3 (2022-02-20)
+
+
+### Bug Fixes
+
+* tile's metatile should be used if available ([#3](https://github.com/MapColonies/tile-calc/issues/3)) ([5dbdb66](https://github.com/MapColonies/tile-calc/commit/5dbdb6677bc5f8246d41b1efd9d002d2c2eb8495))
+
 ### 0.1.2 (2022-02-20)
 
 

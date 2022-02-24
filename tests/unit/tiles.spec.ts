@@ -3,6 +3,71 @@ import { TILEGRID_WEB_MERCATOR, TILEGRID_WORLD_CRS84 } from '../../src/constants
 import { BoundingBox, LonLat, Tile, TileGrid } from '../../src/interfaces';
 import { Zoom } from '../../src/types';
 
+const tileGridTests = [
+  {
+    testCaseName: 'bounding box east is equal or larger than west',
+    expected: "bounding box's east must be larger than west",
+    tileGrid: { ...TILEGRID_WORLD_CRS84, ...{ boundingBox: { west: 90, south: -90, east: 90, north: 90 } } },
+  },
+  {
+    testCaseName: 'bounding box south is equal or larger than north',
+    expected: "bounding box's north must be larger than south",
+    tileGrid: { ...TILEGRID_WORLD_CRS84, ...{ boundingBox: { west: -90, south: 90, east: 90, north: 90 } } },
+  },
+  {
+    testCaseName: 'well known scale set has equal or less than following zoom levels',
+    expected: "scale set must have it's zoom levels ordered in ascending order and must be larger then the previous by 1",
+    tileGrid: {
+      ...TILEGRID_WORLD_CRS84,
+      ...{
+        wellKnownScaleSet: {
+          identifier: 'test',
+          scaleDenominators: new Map([
+            [0, 15000],
+            [2, 5000],
+          ]),
+        },
+      },
+    },
+  },
+  {
+    testCaseName: 'well known scale set has equal or less than following scales',
+    expected: "scale set must have it's scales ordered in ascending order and must be larger then the previous",
+    tileGrid: {
+      ...TILEGRID_WORLD_CRS84,
+      ...{
+        wellKnownScaleSet: {
+          identifier: 'test',
+          scaleDenominators: new Map([
+            [0, 5000],
+            [1, 5000],
+          ]),
+        },
+      },
+    },
+  },
+  {
+    testCaseName: 'number of tiles on the x axis at min zoom is less than 1',
+    expected: 'number of tiles on the x axis of a tile grid at the min zoom level must be at least 1',
+    tileGrid: { ...TILEGRID_WORLD_CRS84, ...{ numberOfMinLevelTilesX: 0 } },
+  },
+  {
+    testCaseName: 'number of tiles on the y axis at min zoom is less than 1',
+    expected: 'number of tiles on the y axis of a tile grid at the min zoom level must be at least 1',
+    tileGrid: { ...TILEGRID_WORLD_CRS84, ...{ numberOfMinLevelTilesY: 0 } },
+  },
+  {
+    testCaseName: 'tile width is less than 1',
+    expected: 'tile width of a tile grid must be at least 1',
+    tileGrid: { ...TILEGRID_WORLD_CRS84, ...{ tileWidth: 0 } },
+  },
+  {
+    testCaseName: 'tile height is less than 1',
+    expected: 'tile height of a tile grid must be at least 1',
+    tileGrid: { ...TILEGRID_WORLD_CRS84, ...{ tileHeight: 0 } },
+  },
+];
+
 describe('#boundingBoxToTiles', () => {
   it('should return a generator function which yields tiles inside the bounding box', () => {
     const bbox: BoundingBox = { west: 30, south: 30, east: 40, north: 40 };
@@ -122,6 +187,18 @@ describe('#boundingBoxToTiles', () => {
     };
 
     expect(badTilesGenerator).toThrow(RangeError("latitude 100 is out of range of tile grid's bounding box"));
+  });
+  describe('Bad tile grid', () => {
+    test.each(tileGridTests)("should throw an error when the tile grid's $testCaseName", ({ tileGrid, expected }) => {
+      const badTilesGenerator = (): void => {
+        const bbox: BoundingBox = { west: 30, south: 30, east: 40, north: 40 };
+        const zoom: Zoom = 3;
+
+        boundingBoxToTiles(bbox, zoom, undefined, tileGrid);
+      };
+
+      expect(badTilesGenerator).toThrow(new Error(expected));
+    });
   });
 });
 
@@ -266,6 +343,18 @@ describe('#lonLatZoomToTile', () => {
 
     expect(badLonLatZoomToTile).toThrow(Error('metatile must be larger than 0'));
   });
+  describe('Bad tile grid', () => {
+    test.each(tileGridTests)("should throw an error when the tile grid's $testCaseName", ({ tileGrid, expected }) => {
+      const badLonLatZoomToTile = (): void => {
+        const lonLat: LonLat = { lon: 30, lat: 30 };
+        const zoom: Zoom = 0;
+
+        lonLatZoomToTile(lonLat, zoom, undefined, tileGrid);
+      };
+
+      expect(badLonLatZoomToTile).toThrow(new Error(expected));
+    });
+  });
 });
 
 describe('#tileToBoundingBox', () => {
@@ -278,10 +367,18 @@ describe('#tileToBoundingBox', () => {
     expect(boundingBox).toEqual(expected);
   });
   it('should return a bounding box for a given tile which contains a metatile size that overrides the default', () => {
-    const tile: Tile = { x: 1, y: 0, z: 1, metatile: 2 };
-    const expected: BoundingBox = { west: 0, south: -90, east: 180, north: 90 };
+    const tile: Tile = { x: 1, y: 0, z: 1, metatile: 3 };
+    const expected: BoundingBox = { west: 90, south: -180, east: 360, north: 90 };
 
     const boundingBox = tileToBoundingBox(tile);
+
+    expect(boundingBox).toEqual(expected);
+  });
+  it('should return a bounding box for a given tile which contains a metatile size that overrides the default with clamping used', () => {
+    const tile: Tile = { x: 1, y: 0, z: 1, metatile: 3 };
+    const expected: BoundingBox = { west: 90, south: -90, east: 180, north: 90 };
+
+    const boundingBox = tileToBoundingBox(tile, undefined, true);
 
     expect(boundingBox).toEqual(expected);
   });
@@ -305,11 +402,25 @@ describe('#tileToBoundingBox', () => {
     const expected: BoundingBox = {
       west: 90,
       south: -42.525564389903295,
-      east: 180,
+      east: 360,
       north: 85.05112877980659,
     };
 
     const boundingBox = tileToBoundingBox(tile, tileGrid);
+
+    expect(boundingBox).toEqual(expected);
+  });
+  it('should return a bounding box for a given tile with non default tile grid & non default metatile & clamping used', () => {
+    const tile: Tile = { x: 1, y: 0, z: 2, metatile: 3 };
+    const tileGrid: TileGrid = TILEGRID_WEB_MERCATOR;
+    const expected: BoundingBox = {
+      west: 90,
+      south: -42.525564389903295,
+      east: 180,
+      north: 85.05112877980659,
+    };
+
+    const boundingBox = tileToBoundingBox(tile, tileGrid, true);
 
     expect(boundingBox).toEqual(expected);
   });
@@ -367,82 +478,15 @@ describe('#tileToBoundingBox', () => {
 
     expect(badTileToBoundingBox).toThrow(new Error('metatile must be larger than 0'));
   });
-  test.each([
-    {
-      testCaseName: 'bounding box east is equal or larger than west',
-      expected: "bounding box's east must be larger than west",
-      tile: { x: 0, y: 0, z: 0 },
-      tileGrid: { ...TILEGRID_WORLD_CRS84, ...{ boundingBox: { west: 90, south: -90, east: 90, north: 90 } } },
-    },
-    {
-      testCaseName: 'bounding box south is equal or larger than north',
-      expected: "bounding box's north must be larger than south",
-      tile: { x: 0, y: 0, z: 0 },
-      tileGrid: { ...TILEGRID_WORLD_CRS84, ...{ boundingBox: { west: -90, south: 90, east: 90, north: 90 } } },
-    },
-    {
-      testCaseName: 'well known scale set has equal or less than following zoom levels',
-      expected: "scale set must have it's zoom levels ordered in ascending order and must be larger then the previous by 1",
-      tile: { x: 0, y: 0, z: 0 },
-      tileGrid: {
-        ...TILEGRID_WORLD_CRS84,
-        ...{
-          wellKnownScaleSet: {
-            identifier: 'test',
-            scaleDenominators: new Map([
-              [0, 15000],
-              [2, 5000],
-            ]),
-          },
-        },
-      },
-    },
-    {
-      testCaseName: 'well known scale set has equal or less than following scales',
-      expected: "scale set must have it's scales ordered in ascending order and must be larger then the previous",
-      tile: { x: 0, y: 0, z: 0 },
-      tileGrid: {
-        ...TILEGRID_WORLD_CRS84,
-        ...{
-          wellKnownScaleSet: {
-            identifier: 'test',
-            scaleDenominators: new Map([
-              [0, 5000],
-              [1, 5000],
-            ]),
-          },
-        },
-      },
-    },
-    {
-      testCaseName: 'number of tiles on the x axis at min zoom is less than 1',
-      expected: 'number of tiles on the x axis of a tile grid at the min zoom level must be at least 1',
-      tile: { x: 0, y: 0, z: 0 },
-      tileGrid: { ...TILEGRID_WORLD_CRS84, ...{ numberOfMinLevelTilesX: 0 } },
-    },
-    {
-      testCaseName: 'number of tiles on the y axis at min zoom is less than 1',
-      expected: 'number of tiles on the y axis of a tile grid at the min zoom level must be at least 1',
-      tile: { x: 0, y: 0, z: 0 },
-      tileGrid: { ...TILEGRID_WORLD_CRS84, ...{ numberOfMinLevelTilesY: 0 } },
-    },
-    {
-      testCaseName: 'tile width is less than 1',
-      expected: 'tile width of a tile grid must be at least 1',
-      tile: { x: 0, y: 0, z: 0 },
-      tileGrid: { ...TILEGRID_WORLD_CRS84, ...{ tileWidth: 0 } },
-    },
-    {
-      testCaseName: 'tile height is less than 1',
-      expected: 'tile height of a tile grid must be at least 1',
-      tile: { x: 0, y: 0, z: 0 },
-      tileGrid: { ...TILEGRID_WORLD_CRS84, ...{ tileHeight: 0 } },
-    },
-  ])("should throw an error when the tile grid's $testCaseName", ({ tile, tileGrid, expected }) => {
-    const badTileToBoundingBox = (): void => {
-      tileToBoundingBox(tile, tileGrid);
-    };
+  describe('Bad tile grid', () => {
+    test.each(tileGridTests)("should throw an error when the tile grid's $testCaseName", ({ tileGrid, expected }) => {
+      const badTileToBoundingBox = (): void => {
+        const tile = { x: 0, y: 0, z: 0 };
 
-    expect(badTileToBoundingBox).toThrow(new Error(expected));
+        tileToBoundingBox(tile, tileGrid);
+      };
+
+      expect(badTileToBoundingBox).toThrow(new Error(expected));
+    });
   });
 });

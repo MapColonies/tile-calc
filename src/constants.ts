@@ -1,29 +1,46 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 import { CoordinateReferenceSystem, Ellipsoid, ScaleSet, TileGrid } from './interfaces';
 
-export const PIXEL_SIZE = 0.00028; // meters
+/**
+ * Size of a pixel in meters
+ */
+export const PIXEL_SIZE = 0.00028;
 
-export const SCALE_FACTOR = 2; // factor between adjacent zoom levels
+/**
+ * A scale factor between adjacent zoom levels
+ */
+export const SCALE_FACTOR = 2;
 
+/**
+ * @category Coordinate Reference System
+ */
 export const CRS_CRS84: CoordinateReferenceSystem = {
   identifier: 'http://www.opengis.net/def/crs/OGC/1.3/CRS84',
   name: 'WGS 84 longitude-latitude',
 };
 
+/**
+ * @category Coordinate Reference System
+ */
 export const CRS_3857: CoordinateReferenceSystem = {
   identifier: 'http://www.opengis.net/def/crs/EPSG/0/3857',
   name: 'WGS 84 / Pseudo-Mercator',
 };
 
+/**
+ * @category Ellipsoid
+ */
 export const ELLIPSOID_WGS84: Ellipsoid = {
   name: 'WGS 84',
   semiMajorAxis: 6378137,
   inverseFlattening: 298.257223563,
 };
 
-// scale denominators are calculated as the bellow formula dependant on zoom level
-// zoom: ELLIPSOID_WGS84.semiMajorAxis * 2 * Math.PI / 256 / PIXEL_SIZE / 2**zoom,
-
+/**
+ * scale denominators depend on a zoom level and are calculated as
+ * zoom: ELLIPSOID_WGS84.semiMajorAxis * 2 * Math.PI / 256 / PIXEL_SIZE / 2**zoom
+ * @category Scale Set
+ */
 export const SCALESET_GOOGLE_CRS84_QUAD: ScaleSet = {
   identifier: 'GoogleCRS84Quad',
   scaleDenominators: new Map([
@@ -51,6 +68,11 @@ export const SCALESET_GOOGLE_CRS84_QUAD: ScaleSet = {
   ]),
 };
 
+/**
+ * scale denominators depend on a zoom level and are calculated as
+ * zoom: ELLIPSOID_WGS84.semiMajorAxis * 2 * Math.PI / 256 / PIXEL_SIZE / 2**zoom
+ * @category Scale Set
+ */
 export const SCALESET_GOOGLE_MAPS_COMPATIBLE: ScaleSet = {
   identifier: 'GoogleMapsCompatible',
   scaleDenominators: new Map([
@@ -82,7 +104,12 @@ export const SCALESET_GOOGLE_MAPS_COMPATIBLE: ScaleSet = {
   ]),
 };
 
-// WorldCRS84Quad uses modified version of GoogleCRS84Quad which dissmisses the first zoom level
+/**
+ * scale denominators depend on a zoom level and are calculated as
+ * zoom: ELLIPSOID_WGS84.semiMajorAxis * 2 * Math.PI / 256 / PIXEL_SIZE / 2**zoom
+ * @notice WorldCRS84Quad uses modified version of GoogleCRS84Quad which dissmisses the first zoom level
+ * @category Scale Set
+ */
 export const SCALESET_GOOGLE_CRS84_QUAD_MODIFIED: ScaleSet = {
   identifier: 'GoogleCRS84Quad',
   scaleDenominators: new Map([
@@ -110,7 +137,10 @@ export const SCALESET_GOOGLE_CRS84_QUAD_MODIFIED: ScaleSet = {
   ]),
 };
 
-// some tile grid parameters are taken from https://docs.opengeospatial.org/is/17-083r2/17-083r2.html
+/**
+ * some tile grid parameters are taken from https://docs.opengeospatial.org/is/17-083r2/17-083r2.html
+ * @category Tile Grid
+ */
 export const TILEGRID_WORLD_CRS84: TileGrid = {
   identifier: 'WorldCRS84Quad',
   title: 'CRS84 for the World',
@@ -123,6 +153,10 @@ export const TILEGRID_WORLD_CRS84: TileGrid = {
   tileHeight: 256,
 };
 
+/**
+ * some tile grid parameters are taken from https://docs.opengeospatial.org/is/17-083r2/17-083r2.html
+ * @category Tile Grid
+ */
 export const TILEGRID_WEB_MERCATOR: TileGrid = {
   identifier: 'WebMercatorQuad',
   title: 'Google Maps Compatible for the World',

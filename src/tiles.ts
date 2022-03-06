@@ -54,6 +54,14 @@ function geoCoordsToTile(lonlat: LonLat, zoom: Zoom, metatile = 1, referenceTile
   };
 }
 
+/**
+ * Creates a generator function which calculates a tile within a bounding box
+ * @param bbox the bounding box
+ * @param zoom the zoom level
+ * @param metatile the size of a metatile
+ * @param referenceTileGrid a tile grid which the calculated tile belongs to
+ * @returns generator function which calculates tiles within the `bbox`
+ */
 export function boundingBoxToTiles(
   bbox: BoundingBox,
   zoom: Zoom,
@@ -71,6 +79,14 @@ export function boundingBoxToTiles(
   return tilesGenerator([upperLeftTile.x, upperLeftTile.y, lowerRightTile.x, lowerRightTile.y], zoom, metatile);
 }
 
+/**
+ * Calculates the matching zoom level between tile grids
+ * @param zoom the zoom level
+ * @param referenceTileGrid a source tile grid
+ * @param targetTileGrid a target tile grid
+ * @throws Error when there is no matching scales for equivalent zooms
+ * @returns a matching zoom level
+ */
 export function zoomShift(zoom: Zoom, referenceTileGrid: TileGrid, targetTileGrid: TileGrid): Zoom {
   validateTileGrid(referenceTileGrid);
   validateTileGrid(targetTileGrid);
@@ -97,6 +113,14 @@ export function zoomShift(zoom: Zoom, referenceTileGrid: TileGrid, targetTileGri
   return matchingZoom;
 }
 
+/**
+ * Calculates a tile for a longtitude, latitude and zoom
+ * @param lonlat a longtitude and latitude
+ * @param zoom the zoom level
+ * @param metatile the size of a metatile
+ * @param referenceTileGrid a tile grid which the calculated tile belongs to
+ * @returns tile within the tile grid by the input values of `lonlat` and `zoom`
+ */
 export function lonLatZoomToTile(lonlat: LonLat, zoom: Zoom, metatile = 1, referenceTileGrid: TileGrid = TILEGRID_WORLD_CRS84): Tile {
   validateMetatile(metatile);
   validateTileGrid(referenceTileGrid);
@@ -106,6 +130,12 @@ export function lonLatZoomToTile(lonlat: LonLat, zoom: Zoom, metatile = 1, refer
   return geoCoordsToTile(lonlat, zoom, metatile, referenceTileGrid);
 }
 
+/**
+ * Calculates a bounding box of a tile
+ * @param tile the input tile
+ * @param referenceTileGrid a tile grid which this tile belongs to
+ * @returns bounding box of the input `tile`
+ */
 export function tileToBoundingBox(tile: Tile, referenceTileGrid: TileGrid = TILEGRID_WORLD_CRS84): BoundingBox {
   validateTileGrid(referenceTileGrid);
   validateTile(tile, referenceTileGrid);

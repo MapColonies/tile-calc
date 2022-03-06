@@ -1,4 +1,6 @@
 {
   "entryPoints": ["src"],
+  "exclude": "**/*+(index).ts",
+  "includeVersion": true,
   "out": "docs"
 }

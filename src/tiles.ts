@@ -15,13 +15,13 @@ function clampValues(value: number, minValue: number, maxValue: number): number 
   return value;
 }
 
-function tileHeight(zoom: Zoom, referenceTileGrid: TileGrid): number {
+function tileProjectedHeight(zoom: Zoom, referenceTileGrid: TileGrid): number {
   return (
     (referenceTileGrid.boundingBox.north - referenceTileGrid.boundingBox.south) / (referenceTileGrid.numberOfMinLevelTilesY * SCALE_FACTOR ** zoom)
   );
 }
 
-function tileWidth(zoom: Zoom, referenceTileGrid: TileGrid): number {
+function tileProjectedWidth(zoom: Zoom, referenceTileGrid: TileGrid): number {
   return (
     (referenceTileGrid.boundingBox.east - referenceTileGrid.boundingBox.west) / (referenceTileGrid.numberOfMinLevelTilesX * SCALE_FACTOR ** zoom)
   );
@@ -38,8 +38,8 @@ function* tilesGenerator(limits: Limits, zoom: Zoom, metatile: number): Generato
 }
 
 function geoCoordsToTile(lonlat: LonLat, zoom: Zoom, metatile = 1, referenceTileGrid: TileGrid = TILEGRID_WORLD_CRS84): Tile {
-  const width = tileWidth(zoom, referenceTileGrid) * metatile;
-  const height = tileHeight(zoom, referenceTileGrid) * metatile;
+  const width = tileProjectedWidth(zoom, referenceTileGrid) * metatile;
+  const height = tileProjectedHeight(zoom, referenceTileGrid) * metatile;
 
   const x = Math.floor((lonlat.lon - referenceTileGrid.boundingBox.west) / width);
   const y = Math.floor((referenceTileGrid.boundingBox.north - lonlat.lat) / height);
@@ -111,8 +111,8 @@ export function tileToBoundingBox(tile: Tile, referenceTileGrid: TileGrid = TILE
   validateTile(tile, referenceTileGrid);
   const metatile = tile.metatile ?? 1;
 
-  const width = tileWidth(tile.z, referenceTileGrid) * metatile;
-  const height = tileHeight(tile.z, referenceTileGrid) * metatile;
+  const width = tileProjectedWidth(tile.z, referenceTileGrid) * metatile;
+  const height = tileProjectedHeight(tile.z, referenceTileGrid) * metatile;
 
   let bbox: BoundingBox = {
     west: referenceTileGrid.boundingBox.west + tile.x * width,

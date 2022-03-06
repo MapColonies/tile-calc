@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 0.1.4 (2022-03-06)
+
+
+### Features
+
+* optional clamp to tile grid bbox ([#4](https://github.com/MapColonies/tile-calc/issues/4)) ([e2b4608](https://github.com/MapColonies/tile-calc/commit/e2b4608cd95aa5df0e944d3dcd75acd38e8b2fa7))
+
 ### 0.1.3 (2022-02-20)
 
 

@@ -1,5 +1,5 @@
 {
   "scripts": {
-    "postcommit": "npx typedoc --out docs && git add . && git commit --amend --no-edit"
+    "postcommit": "npx typedoc && git add . && git commit --amend --no-edit"
   }
 }
